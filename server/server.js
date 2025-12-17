@@ -1,7 +1,6 @@
 // server/server.js
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { setupDatabase, testConnection } from './models/setup.js';
 import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js';
 
@@ -13,9 +12,7 @@ import featuredRoutes from './routes/featuredRoutes.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
-// Load environment variables
-dotenv.config();
-
+// Config is loaded in config/database.js
 const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
