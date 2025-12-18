@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Detail - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div id="recipe-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { requireAuth, getUser } from '/src/js/auth.js';
+        import { recipes } from '/src/js/api.js';
+        import { showLoading, showError, showSuccess, getQueryParam, formatDate } from '/src/js/utils.js';
+        
+        requireAuth();
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('recipe-container');
+        const recipeId = getQueryParam('id');
+        
+        if (!recipeId) {
+            window.location.href = '/recipes/index.html';
+        }
+        
+        async function loadRecipe() {
+            showLoading(container);
+            
+            try {
+                const data = await recipes.getById(recipeId);
+                renderRecipe(data.recipe);
+            } catch (error) {
+                showError(container, error.message || 'Failed to load recipe');
+            }
+        }
+        
+        function renderRecipe(recipe) {
+            const user = getUser();
+            const isOwner = recipe.owner_id === user.user_id;
+            
+            container.innerHTML = `
+                <div class="recipe-detail">
+                    <div class="recipe-header">
+                        <h1>${recipe.title}</h1>
+                        <p class="recipe-meta-info">
+                            Created by ${recipe.first_name} ${recipe.last_name} on ${formatDate(recipe.created_at)}
+                        </p>
+                    </div>
+
+                    ${recipe.image_url ? `
+                        <div class="recipe-image-container">
+                            <img src="${recipe.image_url}" alt="${recipe.title}" class="recipe-detail-image">
+                        </div>
+                    ` : ''}
+
+                    <div class="recipe-info-grid">
+                        ${recipe.prep_time ? `
+                            <div class="info-item">
+                                <span class="label">Prep Time:</span>
+                                <span class="value">${recipe.prep_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.cook_time ? `
+                            <div class="info-item">
+                                <span class="label">Cook Time:</span>
+                                <span class="value">${recipe.cook_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.servings ? `
+                            <div class="info-item">
+                                <span class="label">Servings:</span>
+                                <span class="value">${recipe.servings}</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.difficulty ? `
+                            <div class="info-item">
+                                <span class="label">Difficulty:</span>
+                                <span class="value">${recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${recipe.categories && recipe.categories.length > 0 ? `
+                        <div class="recipe-categories">
+                            <strong>Categories:</strong>
+                            ${recipe.categories.map(cat => `
+                                <span class="category-tag">${cat.category_name}</span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${recipe.description ? `
+                        <section class="recipe-section">
+                            <h2>Description</h2>
+                            <p>${recipe.description}</p>
+                        </section>
+                    ` : ''}
+
+                    <section class="recipe-section">
+                        <h2>Ingredients</h2>
+                        ${recipe.ingredients && recipe.ingredients.length > 0 ? `
+                            <ul class="ingredients-list">
+                                ${recipe.ingredients.map(ing => `
+                                    <li>
+                                        <span class="quantity">${ing.quantity}</span>
+                                        <span class="name">${ing.ingredient_name}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : '<p class="text-muted">No ingredients listed</p>'}
+                    </section>
+
+                    <section class="recipe-section">
+                        <h2>Instructions</h2>
+                        <div class="instructions">
+                            ${recipe.instructions.replace(/\n/g, '<br>')}
+                        </div>
+                    </section>
+
+                    <div class="recipe-actions">
+                        <a href="/recipes/index.html" class="btn btn-secondary">← Back to My Recipes</a>
+                        
+                        ${isOwner ? `
+                            <a href="/recipes/edit.html?id=${recipe.recipe_id}" class="btn btn-primary">Edit Recipe</a>
+                            <button class="btn btn-success" onclick="handleSubmit()">Submit for Review</button>
+                            <button class="btn btn-danger" onclick="handleDelete()">Delete Recipe</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        window.handleSubmit = async () => {
+            if (!confirm('Submit this recipe for review to be featured?')) return;
+            
+            try {
+                await recipes.submit(recipeId);
+                showSuccess('Recipe submitted for review!');
+                setTimeout(() => window.location.href = '/recipes/index.html', 2000);
+            } catch (error) {
+                alert(error.message || 'Failed to submit recipe');
+            }
+        };
+        
+        window.handleDelete = async () => {
+            if (!confirm('Delete this recipe? This action cannot be undone.')) return;
+            
+            try {
+                await recipes.delete(recipeId);
+                showSuccess('Recipe deleted successfully');
+                setTimeout(() => window.location.href = '/recipes/index.html', 1500);
+            } catch (error) {
+                alert(error.message || 'Failed to delete recipe');
+            }
+        };
+        
+        loadRecipe();
+    </script>
+</body>
+</html>

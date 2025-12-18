@@ -1,3 +1,4 @@
+// /server/controllers/adminController.js
 import { 
     getAllUsers as getAllUsersModel,
     getUserByEmail, 

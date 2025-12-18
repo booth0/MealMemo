@@ -1,3 +1,4 @@
+// /server/models/categoriesModel.js
 import db from './db.js';
 
 /**

@@ -1,3 +1,4 @@
+// /server/models/featuredModel.js
 import db from './db.js';
 
 /**

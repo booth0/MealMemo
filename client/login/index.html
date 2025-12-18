@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div class="auth-container">
+            <h1>Login</h1>
+            
+            <div id="error-message"></div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Login</button>
+                </div>
+            </form>
+            
+            <div class="form-link">
+                Don't have an account? <a href="/register/index.html">Sign up</a>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { auth } from '/src/js/api.js';
+        import { saveToken, saveUser, isAuthenticated } from '/src/js/auth.js';
+        import { getQueryParam, showError } from '/src/js/utils.js';
+        
+        loadHeader();
+        loadFooter();
+        
+        if (isAuthenticated()) {
+            window.location.href = '/recipes/index.html';
+        }
+        
+        const redirectUrl = getQueryParam('redirect') || '/recipes/index.html';
+        const form = document.getElementById('login-form');
+        const errorDiv = document.getElementById('error-message');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.innerHTML = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            
+            const formData = new FormData(form);
+            const credentials = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            
+            try {
+                const response = await auth.login(credentials);
+                saveToken(response.token);
+                saveUser(response.user);
+                window.location.href = redirectUrl;
+            } catch (error) {
+                showError(errorDiv, error.message || 'Login failed');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
+            }
+        });
+    </script>
+</body>
+</html>

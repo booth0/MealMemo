@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Submission - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div id="submission-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { requireContributor } from '/src/js/auth.js';
+        import { submissions } from '/src/js/api.js';
+        import { showLoading, showError, showSuccess, getQueryParam, formatDate } from '/src/js/utils.js';
+        
+        requireContributor();
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('submission-container');
+        const submissionId = getQueryParam('id');
+        
+        if (!submissionId) {
+            window.location.href = '/contributor/index.html';
+        }
+        
+        async function loadSubmission() {
+            showLoading(container);
+            
+            try {
+                const data = await submissions.getById(submissionId);
+                renderSubmission(data.submission);
+            } catch (error) {
+                showError(container, error.message || 'Failed to load submission');
+            }
+        }
+        
+        function renderSubmission(submission) {
+            container.innerHTML = `
+                <div class="recipe-detail">
+                    <div class="recipe-header">
+                        <h1>Review Submission</h1>
+                        <div class="status-badge status-${submission.status}">
+                            ${submission.status.replace('_', ' ').toUpperCase()}
+                        </div>
+                    </div>
+
+                    <div class="recipe-header">
+                        <h2>${submission.title}</h2>
+                        <p class="recipe-meta-info">
+                            Submitted by: <strong>${submission.first_name} ${submission.last_name}</strong> 
+                            (${submission.email})<br>
+                            <small>on ${formatDate(submission.submitted_at)}</small>
+                        </p>
+                    </div>
+
+                    ${submission.image_url ? `
+                        <div class="recipe-image-container">
+                            <img src="${submission.image_url}" alt="${submission.title}" class="recipe-detail-image">
+                        </div>
+                    ` : ''}
+
+                    <div class="recipe-info-grid">
+                        ${submission.prep_time ? `
+                            <div class="info-item">
+                                <span class="label">Prep Time:</span>
+                                <span class="value">${submission.prep_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${submission.cook_time ? `
+                            <div class="info-item">
+                                <span class="label">Cook Time:</span>
+                                <span class="value">${submission.cook_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${submission.servings ? `
+                            <div class="info-item">
+                                <span class="label">Servings:</span>
+                                <span class="value">${submission.servings}</span>
+                            </div>
+                        ` : ''}
+                        ${submission.difficulty ? `
+                            <div class="info-item">
+                                <span class="label">Difficulty:</span>
+                                <span class="value">${submission.difficulty.charAt(0).toUpperCase() + submission.difficulty.slice(1)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${submission.description ? `
+                        <section class="recipe-section">
+                            <h2>Description</h2>
+                            <p>${submission.description}</p>
+                        </section>
+                    ` : ''}
+
+                    <section class="recipe-section">
+                        <h2>Ingredients</h2>
+                        ${submission.ingredients && submission.ingredients.length > 0 ? `
+                            <ul class="ingredients-list">
+                                ${submission.ingredients.map(ing => `
+                                    <li>
+                                        <span class="quantity">${ing.quantity}</span>
+                                        <span class="name">${ing.ingredient_name}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : '<p class="text-muted">No ingredients listed</p>'}
+                    </section>
+
+                    <section class="recipe-section">
+                        <h2>Instructions</h2>
+                        <div class="instructions">
+                            ${submission.instructions.replace(/\n/g, '<br>')}
+                        </div>
+                    </section>
+
+                    ${submission.status === 'under_review' ? `
+                        <section class="recipe-section review-actions">
+                            <h2>Review Decision</h2>
+                            
+                            <form id="approve-form" class="review-form">
+                                <div class="form-group">
+                                    <label for="approve-notes">Approval Notes (Optional):</label>
+                                    <textarea 
+                                        id="approve-notes" 
+                                        name="notes" 
+                                        rows="3" 
+                                        class="form-input"
+                                        placeholder="Any feedback or comments for the author..."
+                                    ></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    ✓ Approve & Feature Recipe
+                                </button>
+                            </form>
+
+                            <form id="reject-form" class="review-form">
+                                <div class="form-group">
+                                    <label for="reject-notes">Rejection Reason (Required):</label>
+                                    <textarea 
+                                        id="reject-notes" 
+                                        name="notes" 
+                                        rows="3" 
+                                        required 
+                                        class="form-input"
+                                        placeholder="Please explain why this recipe cannot be featured..."
+                                    ></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-danger">
+                                    ✗ Reject Recipe
+                                </button>
+                            </form>
+                        </section>
+                    ` : ''}
+
+                    <div class="recipe-actions">
+                        <a href="/contributor/index.html" class="btn btn-secondary">← Back to Submissions</a>
+                    </div>
+                </div>
+            `;
+            
+            if (submission.status === 'under_review') {
+                setupFormHandlers();
+            }
+        }
+        
+        function setupFormHandlers() {
+            const approveForm = document.getElementById('approve-form');
+            const rejectForm = document.getElementById('reject-form');
+            
+            approveForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!confirm('Are you sure you want to APPROVE this recipe and add it to Featured Recipes?')) {
+                    return;
+                }
+                
+                const notes = document.getElementById('approve-notes').value.trim();
+                
+                try {
+                    await submissions.approve(submissionId, notes);
+                    showSuccess('Recipe approved and added to Featured Recipes!');
+                    setTimeout(() => {
+                        window.location.href = '/contributor/index.html';
+                    }, 2000);
+                } catch (error) {
+                    alert(error.message || 'Failed to approve recipe');
+                }
+            });
+            
+            rejectForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const notes = document.getElementById('reject-notes').value.trim();
+                
+                if (!notes) {
+                    alert('Please provide a reason for rejection');
+                    return;
+                }
+                
+                if (!confirm('Are you sure you want to REJECT this recipe?')) {
+                    return;
+                }
+                
+                try {
+                    await submissions.reject(submissionId, notes);
+                    showSuccess('Recipe rejected. The owner has been notified.');
+                    setTimeout(() => {
+                        window.location.href = '/contributor/index.html';
+                    }, 2000);
+                } catch (error) {
+                    alert(error.message || 'Failed to reject recipe');
+                }
+            });
+        }
+        
+        loadSubmission();
+    </script>
+</body>
+</html>

@@ -6,9 +6,11 @@ import {
   approveSubmission,
   rejectSubmission
 } from '../controllers/submissionsController.js';
-import { requireContributor } from '../middleware/authMiddleware.js';
+import { requireAuth, requireContributor } from '../middleware/authMiddleware.js';
 
 const router = Router();
+
+router.use(requireAuth); 
 
 // All routes require contributor role
 router.use(requireContributor);

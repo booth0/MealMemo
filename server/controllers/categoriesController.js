@@ -1,3 +1,4 @@
+// /server/controllers/categoriesController.js
 import {
     getAllCategories as getAllCategoriesModel,
     getCategoryById as getCategoryByIdModel,

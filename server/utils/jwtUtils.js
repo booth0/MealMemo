@@ -2,6 +2,8 @@
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+console.log('JWT_SECRET being used:', process.env.JWT_SECRET); // ← ADD THIS LINE
+console.log('Full JWT_SECRET value:', JWT_SECRET); // ← ADD THIS TOO
 const JWT_EXPIRES_IN = '7d'; // 7 days
 
 /**

@@ -1,4 +1,7 @@
 // server/server.js
+import dotenv from 'dotenv';
+dotenv.config(); // Must be before other imports!
+
 import express from 'express';
 import cors from 'cors';
 import { setupDatabase, testConnection } from './models/setup.js';

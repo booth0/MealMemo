@@ -1,3 +1,4 @@
+// /server/controllers/featuredController.js
 import {
     getAllFeaturedRecipes as getAllFeaturedRecipesModel,
     searchFeaturedRecipes as searchFeaturedRecipesModel,

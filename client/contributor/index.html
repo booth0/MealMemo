@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Submissions - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>📋 Review Submissions</h1>
+            <p class="subtitle">Review submitted recipes for featuring</p>
+        </div>
+
+        <div id="submissions-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { requireContributor } from '/src/js/auth.js';
+        import { submissions } from '/src/js/api.js';
+        import { showLoading, showError, truncate, formatDate } from '/src/js/utils.js';
+        
+        requireContributor();
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('submissions-container');
+        
+        async function loadSubmissions() {
+            showLoading(container);
+            
+            try {
+                const data = await submissions.getAll();
+                renderSubmissions(data.submissions);
+            } catch (error) {
+                showError(container, error.message || 'Failed to load submissions');
+            }
+        }
+        
+        function renderSubmissions(submissionsData) {
+            if (submissionsData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No pending submissions at this time.</p>
+                        <p>Check back later for new recipe submissions to review.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="submissions-grid">
+                    ${submissionsData.map(submission => `
+                        <div class="recipe-card">
+                            ${submission.image_url ? 
+                                `<img src="${submission.image_url}" alt="${submission.title}" class="recipe-image">` :
+                                `<div class="recipe-image-placeholder"><span>No Image</span></div>`
+                            }
+                            
+                            <div class="recipe-card-content">
+                                <h3>${submission.title}</h3>
+                                
+                                ${submission.description ? `<p class="description">${truncate(submission.description, 100)}</p>` : ''}
+                                
+                                <div class="recipe-meta">
+                                    ${submission.prep_time ? `<span>⏱️ ${submission.prep_time}min</span>` : ''}
+                                    ${submission.cook_time ? `<span>🍳 ${submission.cook_time}min</span>` : ''}
+                                    ${submission.servings ? `<span>🍽️ ${submission.servings} servings</span>` : ''}
+                                    ${submission.difficulty ? `<span>📊 ${submission.difficulty.charAt(0).toUpperCase() + submission.difficulty.slice(1)}</span>` : ''}
+                                </div>
+                                
+                                <p class="submitted-by">
+                                    Submitted by: <strong>${submission.first_name} ${submission.last_name}</strong><br>
+                                    <small>on ${formatDate(submission.submitted_at)}</small>
+                                </p>
+                                
+                                <div class="card-actions">
+                                    <a href="/contributor/review.html?id=${submission.submission_id}" class="btn btn-primary">
+                                        Review Recipe
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        loadSubmissions();
+    </script>
+</body>
+</html>

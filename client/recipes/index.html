@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipes - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>My Recipes</h1>
+            <div class="page-actions">
+                <a href="/recipes/create.html" class="btn btn-primary">+ Create New Recipe</a>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <form class="search-form" id="search-form">
+                <input type="text" id="search-input" placeholder="Search your recipes..." class="search-input">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="button" id="clear-search" class="btn btn-secondary" style="display: none;">Clear</button>
+            </form>
+        </div>
+
+        <div id="recipes-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { requireAuth } from '/src/js/auth.js';
+        import { recipes } from '/src/js/api.js';
+        import { showLoading, showError, showSuccess, truncate } from '/src/js/utils.js';
+        
+        requireAuth();
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('recipes-container');
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-search');
+        
+        let currentSearch = '';
+        
+        async function loadRecipes(search = '') {
+            showLoading(container);
+            currentSearch = search;
+            
+            try {
+                const data = await recipes.getAll(search);
+                renderRecipes(data.recipes);
+                clearBtn.style.display = search ? 'inline-block' : 'none';
+            } catch (error) {
+                showError(container, error.message || 'Failed to load recipes');
+            }
+        }
+        
+        function renderRecipes(recipesData) {
+            if (recipesData.length === 0) {
+                if (currentSearch) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No recipes found matching "${currentSearch}"</p>
+                            <button class="btn btn-primary" onclick="location.reload()">Show All Recipes</button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>You haven't created any recipes yet.</p>
+                            <p>Start building your collection!</p>
+                            <a href="/recipes/create.html" class="btn btn-primary">Create Your First Recipe</a>
+                        </div>
+                    `;
+                }
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="recipes-grid">
+                    ${recipesData.map(recipe => `
+                        <div class="recipe-card">
+                            ${recipe.image_url ? 
+                                `<img src="${recipe.image_url}" alt="${recipe.title}" class="recipe-image">` :
+                                `<div class="recipe-image-placeholder"><span>No Image</span></div>`
+                            }
+                            <div class="recipe-card-content">
+                                <h3>${recipe.title}</h3>
+                                ${recipe.description ? `<p class="description">${truncate(recipe.description, 100)}</p>` : ''}
+                                <div class="recipe-meta">
+                                    ${recipe.prep_time ? `<span>⏱️ ${recipe.prep_time}min</span>` : ''}
+                                    ${recipe.cook_time ? `<span>🍳 ${recipe.cook_time}min</span>` : ''}
+                                    ${recipe.servings ? `<span>🍽️ ${recipe.servings} servings</span>` : ''}
+                                    ${recipe.difficulty ? `<span>📊 ${recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>` : ''}
+                                </div>
+                                <div class="card-actions">
+                                    <a href="/recipes/detail.html?id=${recipe.recipe_id}" class="btn btn-primary">View</a>
+                                    <a href="/recipes/edit.html?id=${recipe.recipe_id}" class="btn btn-secondary">Edit</a>
+                                    <button class="btn btn-danger" onclick="handleDelete(${recipe.recipe_id}, '${recipe.title.replace(/'/g, "\\'")}')">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        window.handleDelete = async (id, title) => {
+            if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
+            
+            try {
+                await recipes.delete(id);
+                showSuccess('Recipe deleted successfully');
+                loadRecipes(currentSearch);
+            } catch (error) {
+                alert(error.message || 'Failed to delete recipe');
+            }
+        };
+        
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            loadRecipes(searchInput.value.trim());
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            loadRecipes('');
+        });
+        
+        loadRecipes();
+    </script>
+</body>
+</html>

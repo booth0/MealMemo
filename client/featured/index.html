@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Featured Recipes - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>⭐ Featured Recipes</h1>
+            <p class="subtitle">Discover amazing recipes from our community</p>
+        </div>
+
+        <div class="search-container">
+            <form class="search-form" id="search-form">
+                <input type="text" id="search-input" placeholder="Search featured recipes..." class="search-input">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="button" id="clear-search" class="btn btn-secondary" style="display: none;">Clear</button>
+            </form>
+        </div>
+
+        <div id="recipes-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { isAuthenticated } from '/src/js/auth.js';
+        import { featured } from '/src/js/api.js';
+        import { showLoading, showError, truncate } from '/src/js/utils.js';
+        
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('recipes-container');
+        const searchInput = document.getElementById('search-input');
+        const searchForm = document.getElementById('search-form');
+        const clearBtn = document.getElementById('clear-search');
+        
+        let currentSearch = '';
+        
+        async function loadRecipes(search = '') {
+            showLoading(container);
+            currentSearch = search;
+            
+            try {
+                const data = await featured.getAll(search);
+                renderRecipes(data.recipes);
+                clearBtn.style.display = search ? 'inline-block' : 'none';
+            } catch (error) {
+                showError(container, error.message || 'Failed to load featured recipes');
+            }
+        }
+        
+        function renderRecipes(recipesData) {
+            if (recipesData.length === 0) {
+                if (currentSearch) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No featured recipes found matching "${currentSearch}"</p>
+                            <button class="btn btn-primary" onclick="location.reload()">Show All Featured Recipes</button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No featured recipes yet.</p>
+                            <p>Be the first to submit a recipe!</p>
+                            ${isAuthenticated() ? `
+                                <a href="/recipes/create.html" class="btn btn-primary">Create a Recipe</a>
+                            ` : `
+                                <a href="/register/index.html" class="btn btn-primary">Sign Up to Share Recipes</a>
+                            `}
+                        </div>
+                    `;
+                }
+                return;
+            }
+            
+            const isAuth = isAuthenticated();
+            
+            container.innerHTML = `
+                <div class="recipes-count">
+                    <p>Showing ${recipesData.length} featured recipe${recipesData.length !== 1 ? 's' : ''}</p>
+                </div>
+                <div class="recipes-grid">
+                    ${recipesData.map(recipe => `
+                        <div class="recipe-card">
+                            ${recipe.image_url ? 
+                                `<img src="${recipe.image_url}" alt="${recipe.title}" class="recipe-image">` :
+                                `<div class="recipe-image-placeholder"><span>No Image</span></div>`
+                            }
+                            
+                            <div class="recipe-card-content">
+                                <h3>${recipe.title}</h3>
+                                
+                                ${recipe.description ? `<p class="description">${truncate(recipe.description, 120)}</p>` : ''}
+                                
+                                <div class="recipe-meta">
+                                    ${recipe.prep_time ? `<span>⏱️ ${recipe.prep_time}min</span>` : ''}
+                                    ${recipe.cook_time ? `<span>🍳 ${recipe.cook_time}min</span>` : ''}
+                                    ${recipe.servings ? `<span>🍽️ ${recipe.servings} servings</span>` : ''}
+                                    ${recipe.difficulty ? `<span>📊 ${recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>` : ''}
+                                </div>
+                                
+                                <p class="recipe-author">
+                                    By <strong>${recipe.first_name} ${recipe.last_name}</strong>
+                                </p>
+                                
+                                <div class="card-actions">
+                                    <a href="/featured/detail.html?id=${recipe.recipe_id}" class="btn btn-primary">View Recipe</a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const search = searchInput.value.trim();
+            loadRecipes(search);
+        });
+        
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            loadRecipes('');
+        });
+        
+        loadRecipes();
+    </script>
+</body>
+</html>

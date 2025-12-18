@@ -5,9 +5,11 @@ import {
   searchUserByEmail,
   updateUserRole
 } from '../controllers/adminController.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAuth, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = Router();
+
+router.use(requireAuth);
 
 // All routes require admin role
 router.use(requireAdmin);

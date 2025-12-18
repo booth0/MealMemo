@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Featured Recipe - MealMemo</title>
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+<body>
+    <div id="header"></div>
+    
+    <main class="container">
+        <div id="recipe-container"></div>
+    </main>
+    
+    <div id="footer"></div>
+    
+    <script type="module">
+        import { loadHeader, loadFooter } from '/src/js/components.js';
+        import { isAuthenticated, getUser, isContributor } from '/src/js/auth.js';
+        import { featured } from '/src/js/api.js';
+        import { showLoading, showError, showSuccess, getQueryParam, formatDate } from '/src/js/utils.js';
+        
+        loadHeader();
+        loadFooter();
+        
+        const container = document.getElementById('recipe-container');
+        const recipeId = getQueryParam('id');
+        
+        if (!recipeId) {
+            window.location.href = '/featured/index.html';
+        }
+        
+        async function loadRecipe() {
+            showLoading(container);
+            
+            try {
+                const data = await featured.getById(recipeId);
+                renderRecipe(data.recipe, data.isOwner);
+            } catch (error) {
+                showError(container, error.message || 'Failed to load recipe');
+            }
+        }
+        
+        function renderRecipe(recipe, isOwner) {
+            const user = getUser();
+            const isAuth = isAuthenticated();
+            const canModerate = isContributor() && !isOwner;
+            
+            container.innerHTML = `
+                <div class="recipe-detail">
+                    <div class="recipe-header">
+                        <h1>${recipe.title}</h1>
+                        <span class="badge badge-featured">⭐ Featured Recipe</span>
+                        <p class="recipe-meta-info">
+                            Created by ${recipe.first_name} ${recipe.last_name}<br>
+                            <small>Featured on ${formatDate(recipe.featured_at)}</small>
+                        </p>
+                    </div>
+
+                    ${recipe.image_url ? `
+                        <div class="recipe-image-container">
+                            <img src="${recipe.image_url}" alt="${recipe.title}" class="recipe-detail-image">
+                        </div>
+                    ` : ''}
+
+                    <div class="recipe-info-grid">
+                        ${recipe.prep_time ? `
+                            <div class="info-item">
+                                <span class="label">Prep Time:</span>
+                                <span class="value">${recipe.prep_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.cook_time ? `
+                            <div class="info-item">
+                                <span class="label">Cook Time:</span>
+                                <span class="value">${recipe.cook_time} minutes</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.servings ? `
+                            <div class="info-item">
+                                <span class="label">Servings:</span>
+                                <span class="value">${recipe.servings}</span>
+                            </div>
+                        ` : ''}
+                        ${recipe.difficulty ? `
+                            <div class="info-item">
+                                <span class="label">Difficulty:</span>
+                                <span class="value">${recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${recipe.categories && recipe.categories.length > 0 ? `
+                        <div class="recipe-categories">
+                            <strong>Categories:</strong>
+                            ${recipe.categories.map(cat => `
+                                <span class="category-tag">${cat.category_name}</span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${recipe.description ? `
+                        <section class="recipe-section">
+                            <h2>Description</h2>
+                            <p>${recipe.description}</p>
+                        </section>
+                    ` : ''}
+
+                    <section class="recipe-section">
+                        <h2>Ingredients</h2>
+                        ${recipe.ingredients && recipe.ingredients.length > 0 ? `
+                            <ul class="ingredients-list">
+                                ${recipe.ingredients.map(ing => `
+                                    <li>
+                                        <span class="quantity">${ing.quantity}</span>
+                                        <span class="name">${ing.ingredient_name}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : '<p class="text-muted">No ingredients listed</p>'}
+                    </section>
+
+                    <section class="recipe-section">
+                        <h2>Instructions</h2>
+                        <div class="instructions">
+                            ${recipe.instructions.replace(/\n/g, '<br>')}
+                        </div>
+                    </section>
+
+                    <div class="recipe-actions">
+                        <a href="/featured/index.html" class="btn btn-secondary">← Back to Featured Recipes</a>
+                        
+                        ${isAuth && !isOwner ? `
+                            <button class="btn btn-success" onclick="handleCopy()">📋 Copy to My Recipes</button>
+                        ` : ''}
+                        
+                        ${isOwner ? `
+                            <span class="owner-indicator">👤 Your Recipe</span>
+                            <button class="btn btn-danger" onclick="handleDelete()">Delete Recipe</button>
+                        ` : ''}
+                        
+                        ${canModerate ? `
+                            <button class="btn btn-warning" onclick="handleUnfeature()">Remove Featured Status</button>
+                            <button class="btn btn-danger" onclick="handleDelete()">Delete Recipe</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        window.handleCopy = async () => {
+            if (!isAuthenticated()) {
+                alert('Please log in to copy recipes');
+                window.location.href = '/login/index.html';
+                return;
+            }
+            
+            try {
+                const response = await featured.copy(recipeId);
+                showSuccess('Recipe copied to your collection!');
+                setTimeout(() => {
+                    window.location.href = `/recipes/detail.html?id=${response.recipe.recipe_id}`;
+                }, 2000);
+            } catch (error) {
+                alert(error.message || 'Failed to copy recipe');
+            }
+        };
+        
+        window.handleUnfeature = async () => {
+            if (!confirm('Remove this recipe from featured list?')) return;
+            
+            try {
+                await featured.unfeature(recipeId);
+                showSuccess('Recipe removed from featured list');
+                setTimeout(() => {
+                    window.location.href = '/featured/index.html';
+                }, 2000);
+            } catch (error) {
+                alert(error.message || 'Failed to unfeature recipe');
+            }
+        };
+        
+        window.handleDelete = async () => {
+            if (!confirm('Are you sure you want to delete this featured recipe? This action cannot be undone.')) return;
+            
+            try {
+                await featured.delete(recipeId);
+                showSuccess('Recipe deleted successfully');
+                setTimeout(() => {
+                    window.location.href = '/featured/index.html';
+                }, 1500);
+            } catch (error) {
+                alert(error.message || 'Failed to delete recipe');
+            }
+        };
+        
+        loadRecipe();
+    </script>
+</body>
+</html>
