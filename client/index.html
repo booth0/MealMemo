@@ -1,65 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MealMemo - Your Personal Recipe Manager</title>
-    <link rel="stylesheet" href="/src/css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
     <div id="header"></div>
-    
-    <main class="home-page">
-        <div class="container">
-            <section class="hero">
-                <h1>Welcome to MealMemo</h1>
-                <p class="tagline">Your personal cookbook in the cloud</p>
-                <p>Store, organize, and share your favorite recipes.</p>
-                
-                <div class="cta-buttons" id="cta-buttons"></div>
-            </section>
 
-            <section class="features">
-                <h2>Features</h2>
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <h3>📝 Personal Collection</h3>
-                        <p>Create and store all your recipes in one secure place</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>⭐ Featured Recipes</h3>
-                        <p>Submit your best recipes to be featured for the community</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>🔍 Search & Filter</h3>
-                        <p>Quickly find recipes by name or browse by category</p>
-                    </div>
-                </div>
-            </section>
-        </div>
+    <main class="home-page">
+      <div class="container">
+        <section class="hero">
+          <h1>Welcome to MealMemo</h1>
+          <p class="tagline">Your personal cookbook in the cloud</p>
+          <p>Store, organize, and share your favorite recipes.</p>
+
+          <div class="cta-buttons" id="cta-buttons"></div>
+        </section>
+
+        <section class="features">
+          <h2>Features</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3>📝 Personal Collection</h3>
+              <p>Create and store all your recipes in one secure place</p>
+            </div>
+            <div class="feature-card">
+              <h3>⭐ Featured Recipes</h3>
+              <p>Submit your best recipes to be featured for the community</p>
+            </div>
+            <div class="feature-card">
+              <h3>🔍 Search & Filter</h3>
+              <p>Quickly find recipes by name or browse by category</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
-    
+
     <div id="footer"></div>
-    
+
     <script type="module">
-        import { loadHeader, loadFooter } from '/src/js/components.js';
-        import { isAuthenticated } from '/src/js/auth.js';
-        
-        loadHeader();
-        loadFooter();
-        
-        const ctaContainer = document.getElementById('cta-buttons');
-        if (isAuthenticated()) {
-            ctaContainer.innerHTML = `
+      import { loadHeader, loadFooter } from "/src/js/components.js";
+      import { isAuthenticated } from "/src/js/auth.js";
+
+      loadHeader();
+      loadFooter();
+
+      const ctaContainer = document.getElementById("cta-buttons");
+      if (isAuthenticated()) {
+        ctaContainer.innerHTML = `
                 <a href="/recipes/index.html" class="btn btn-primary">View My Recipes</a>
                 <a href="/featured/index.html" class="btn btn-secondary">Browse Featured</a>
             `;
-        } else {
-            ctaContainer.innerHTML = `
+      } else {
+        ctaContainer.innerHTML = `
                 <a href="/register/index.html" class="btn btn-primary">Get Started</a>
                 <a href="/login/index.html" class="btn btn-secondary">Login</a>
             `;
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

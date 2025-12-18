@@ -1,8 +1,8 @@
 // /src/js/auth.js
 // Complete authentication module
 
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = 'current_user';
+const TOKEN_KEY = "auth_token";
+const USER_KEY = "current_user";
 
 // ========== Token Management ==========
 
@@ -45,12 +45,12 @@ export function hasRole(role) {
 }
 
 export function isAdmin() {
-  return hasRole('admin');
+  return hasRole("admin");
 }
 
 export function isContributor() {
   const user = getUser();
-  return user && (user.role === 'contributor' || user.role === 'admin');
+  return user && (user.role === "contributor" || user.role === "admin");
 }
 
 // ========== Logout ==========
@@ -58,7 +58,7 @@ export function isContributor() {
 export function logout() {
   removeToken();
   removeUser();
-  window.location.href = '/';
+  window.location.href = "/";
 }
 
 // ========== Route Protection ==========
@@ -74,22 +74,22 @@ export function requireAuth() {
 
 export function requireRole(role) {
   if (!requireAuth()) return false;
-  
+
   if (!hasRole(role)) {
-    alert('You do not have permission to access this page');
-    window.location.href = '/';
+    alert("You do not have permission to access this page");
+    window.location.href = "/";
     return false;
   }
-  
+
   return true;
 }
 
 export function requireContributor() {
   if (!requireAuth()) return false;
-  
+
   if (!isContributor()) {
-    alert('You need Contributor or Admin access to view this page');
-    window.location.href = '/';
+    alert("You need Contributor or Admin access to view this page");
+    window.location.href = "/";
     return false;
   }
   return true;
@@ -97,12 +97,12 @@ export function requireContributor() {
 
 export function requireAdmin() {
   if (!requireAuth()) return false;
-  
+
   if (!isAdmin()) {
-    alert('You need Admin access to view this page');
-    window.location.href = '/';
+    alert("You need Admin access to view this page");
+    window.location.href = "/";
     return false;
   }
-  
+
   return true;
 }

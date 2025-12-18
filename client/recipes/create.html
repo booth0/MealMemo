@@ -1,216 +1,298 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create Recipe - MealMemo</title>
-    <link rel="stylesheet" href="/src/css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
     <div id="header"></div>
-    
+
     <main class="container">
-        <div class="page-header">
-            <h1>Create New Recipe</h1>
-        </div>
+      <div class="page-header">
+        <h1>Create New Recipe</h1>
+      </div>
 
-        <div id="error-message"></div>
+      <div id="error-message"></div>
 
-        <div class="form-container">
-            <form id="recipe-form">
-                <section class="form-section">
-                    <h2>Basic Information</h2>
-                    
-                    <div class="form-group">
-                        <label for="title">Recipe Title *</label>
-                        <input type="text" id="title" name="title" class="form-input" required>
-                    </div>
+      <div class="form-container">
+        <form id="recipe-form">
+          <section class="form-section">
+            <h2>Basic Information</h2>
 
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="3" class="form-input"></textarea>
-                    </div>
+            <div class="form-group">
+              <label for="title">Recipe Title *</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                class="form-input"
+                required
+              />
+            </div>
 
-                    <div class="form-group">
-                        <label for="image_url">Image URL</label>
-                        <input type="url" id="image_url" name="image_url" class="form-input" placeholder="https://example.com/image.jpg">
-                    </div>
-                </section>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="3"
+                class="form-input"
+              ></textarea>
+            </div>
 
-                <section class="form-section">
-                    <h2>Recipe Details</h2>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prep_time">Prep Time (minutes)</label>
-                            <input type="number" id="prep_time" name="prep_time" min="0" class="form-input">
-                        </div>
+            <div class="form-group">
+              <label for="image_url">Image URL</label>
+              <input
+                type="url"
+                id="image_url"
+                name="image_url"
+                class="form-input"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </section>
 
-                        <div class="form-group">
-                            <label for="cook_time">Cook Time (minutes)</label>
-                            <input type="number" id="cook_time" name="cook_time" min="0" class="form-input">
-                        </div>
+          <section class="form-section">
+            <h2>Recipe Details</h2>
 
-                        <div class="form-group">
-                            <label for="servings">Servings</label>
-                            <input type="number" id="servings" name="servings" min="1" class="form-input">
-                        </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prep_time">Prep Time (minutes)</label>
+                <input
+                  type="number"
+                  id="prep_time"
+                  name="prep_time"
+                  min="0"
+                  class="form-input"
+                />
+              </div>
 
-                        <div class="form-group">
-                            <label for="difficulty">Difficulty</label>
-                            <select id="difficulty" name="difficulty" class="form-input">
-                                <option value="">Select...</option>
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
+              <div class="form-group">
+                <label for="cook_time">Cook Time (minutes)</label>
+                <input
+                  type="number"
+                  id="cook_time"
+                  name="cook_time"
+                  min="0"
+                  class="form-input"
+                />
+              </div>
 
-                <section class="form-section" id="categories-section">
-                    <h2>Categories</h2>
-                    <p class="form-help">Select categories that best describe your recipe (optional)</p>
-                    <div id="categories-container" class="checkbox-grid"></div>
-                </section>
+              <div class="form-group">
+                <label for="servings">Servings</label>
+                <input
+                  type="number"
+                  id="servings"
+                  name="servings"
+                  min="1"
+                  class="form-input"
+                />
+              </div>
 
-                <section class="form-section">
-                    <h2>Ingredients</h2>
-                    <div id="ingredients-container">
-                        <div class="ingredient-row">
-                            <input type="text" name="ingredient_quantity[]" placeholder="Quantity (e.g., 2 cups)" class="form-input ingredient-quantity">
-                            <input type="text" name="ingredient_name[]" placeholder="Ingredient name" class="form-input ingredient-name">
-                            <button type="button" class="btn btn-sm btn-danger" onclick="removeIngredient(this)">Remove</button>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-secondary" onclick="addIngredient()">+ Add Ingredient</button>
-                </section>
+              <div class="form-group">
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty" name="difficulty" class="form-input">
+                  <option value="">Select...</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+          </section>
 
-                <section class="form-section">
-                    <h2>Instructions *</h2>
-                    <textarea id="instructions" name="instructions" rows="10" required class="form-input" placeholder="Enter cooking instructions step by step..."></textarea>
-                </section>
+          <section class="form-section" id="categories-section">
+            <h2>Categories</h2>
+            <p class="form-help">
+              Select categories that best describe your recipe (optional)
+            </p>
+            <div id="categories-container" class="checkbox-grid"></div>
+          </section>
 
-                <div class="form-actions">
-                    <a href="/recipes/index.html" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-success" id="submit-btn">Create Recipe</button>
-                </div>
-            </form>
-        </div>
+          <section class="form-section">
+            <h2>Ingredients</h2>
+            <div id="ingredients-container">
+              <div class="ingredient-row">
+                <input
+                  type="text"
+                  name="ingredient_quantity[]"
+                  placeholder="Quantity (e.g., 2 cups)"
+                  class="form-input ingredient-quantity"
+                />
+                <input
+                  type="text"
+                  name="ingredient_name[]"
+                  placeholder="Ingredient name"
+                  class="form-input ingredient-name"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  onclick="removeIngredient(this)"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="addIngredient()"
+            >
+              + Add Ingredient
+            </button>
+          </section>
+
+          <section class="form-section">
+            <h2>Instructions *</h2>
+            <textarea
+              id="instructions"
+              name="instructions"
+              rows="10"
+              required
+              class="form-input"
+              placeholder="Enter cooking instructions step by step..."
+            ></textarea>
+          </section>
+
+          <div class="form-actions">
+            <a href="/recipes/index.html" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-success" id="submit-btn">
+              Create Recipe
+            </button>
+          </div>
+        </form>
+      </div>
     </main>
-    
+
     <div id="footer"></div>
-    
+
     <script type="module">
-        import { loadHeader, loadFooter } from '/src/js/components.js';
-        import { requireAuth } from '/src/js/auth.js';
-        import { recipes, categories as categoriesAPI } from '/src/js/api.js';
-        import { showError, showSuccess } from '/src/js/utils.js';
-        
-        requireAuth();
-        loadHeader();
-        loadFooter();
-        
-        const form = document.getElementById('recipe-form');
-        const errorDiv = document.getElementById('error-message');
-        const submitBtn = document.getElementById('submit-btn');
-        const categoriesContainer = document.getElementById('categories-container');
-        
-        async function loadCategories() {
-            try {
-                const data = await categoriesAPI.getAll();
-                renderCategories(data.categories);
-            } catch (error) {
-                console.error('Failed to load categories:', error);
-            }
+      import { loadHeader, loadFooter } from "/src/js/components.js";
+      import { requireAuth } from "/src/js/auth.js";
+      import { recipes, categories as categoriesAPI } from "/src/js/api.js";
+      import { showError, showSuccess } from "/src/js/utils.js";
+
+      requireAuth();
+      loadHeader();
+      loadFooter();
+
+      const form = document.getElementById("recipe-form");
+      const errorDiv = document.getElementById("error-message");
+      const submitBtn = document.getElementById("submit-btn");
+      const categoriesContainer = document.getElementById(
+        "categories-container",
+      );
+
+      async function loadCategories() {
+        try {
+          const data = await categoriesAPI.getAll();
+          renderCategories(data.categories);
+        } catch (error) {
+          console.error("Failed to load categories:", error);
         }
-        
-        function renderCategories(cats) {
-            if (!cats || cats.length === 0) {
-                document.getElementById('categories-section').style.display = 'none';
-                return;
-            }
-            
-            categoriesContainer.innerHTML = cats.map(cat => `
+      }
+
+      function renderCategories(cats) {
+        if (!cats || cats.length === 0) {
+          document.getElementById("categories-section").style.display = "none";
+          return;
+        }
+
+        categoriesContainer.innerHTML = cats
+          .map(
+            (cat) => `
                 <label class="checkbox-label">
                     <input type="checkbox" name="categories[]" value="${cat.category_id}">
                     <span>${cat.category_name}</span>
                 </label>
-            `).join('');
-        }
-        
-        window.addIngredient = function() {
-            const container = document.getElementById('ingredients-container');
-            const newRow = document.createElement('div');
-            newRow.className = 'ingredient-row';
-            newRow.innerHTML = `
+            `,
+          )
+          .join("");
+      }
+
+      window.addIngredient = function () {
+        const container = document.getElementById("ingredients-container");
+        const newRow = document.createElement("div");
+        newRow.className = "ingredient-row";
+        newRow.innerHTML = `
                 <input type="text" name="ingredient_quantity[]" placeholder="Quantity (e.g., 2 cups)" class="form-input ingredient-quantity">
                 <input type="text" name="ingredient_name[]" placeholder="Ingredient name" class="form-input ingredient-name">
                 <button type="button" class="btn btn-sm btn-danger" onclick="removeIngredient(this)">Remove</button>
             `;
-            container.appendChild(newRow);
+        container.appendChild(newRow);
+      };
+
+      window.removeIngredient = function (button) {
+        const container = document.getElementById("ingredients-container");
+        if (container.children.length > 1) {
+          button.parentElement.remove();
+        } else {
+          alert("You must have at least one ingredient field");
+        }
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        errorDiv.innerHTML = "";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Creating...";
+
+        const formData = new FormData(form);
+
+        const ingredients = [];
+        const quantities = formData.getAll("ingredient_quantity[]");
+        const names = formData.getAll("ingredient_name[]");
+
+        for (let i = 0; i < quantities.length; i++) {
+          if (quantities[i].trim() && names[i].trim()) {
+            ingredients.push({
+              quantity: quantities[i].trim(),
+              name: names[i].trim(),
+            });
+          }
+        }
+
+        const selectedCategories = formData
+          .getAll("categories[]")
+          .map((id) => parseInt(id));
+
+        const recipeData = {
+          title: formData.get("title").trim(),
+          description: formData.get("description")?.trim() || null,
+          instructions: formData.get("instructions").trim(),
+          prep_time: formData.get("prep_time")
+            ? parseInt(formData.get("prep_time"))
+            : null,
+          cook_time: formData.get("cook_time")
+            ? parseInt(formData.get("cook_time"))
+            : null,
+          servings: formData.get("servings")
+            ? parseInt(formData.get("servings"))
+            : null,
+          difficulty: formData.get("difficulty") || null,
+          image_url: formData.get("image_url")?.trim() || null,
+          ingredients,
+          categories: selectedCategories.length > 0 ? selectedCategories : null,
         };
-        
-        window.removeIngredient = function(button) {
-            const container = document.getElementById('ingredients-container');
-            if (container.children.length > 1) {
-                button.parentElement.remove();
-            } else {
-                alert('You must have at least one ingredient field');
-            }
-        };
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            errorDiv.innerHTML = '';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating...';
-            
-            const formData = new FormData(form);
-            
-            const ingredients = [];
-            const quantities = formData.getAll('ingredient_quantity[]');
-            const names = formData.getAll('ingredient_name[]');
-            
-            for (let i = 0; i < quantities.length; i++) {
-                if (quantities[i].trim() && names[i].trim()) {
-                    ingredients.push({
-                        quantity: quantities[i].trim(),
-                        name: names[i].trim()
-                    });
-                }
-            }
-            
-            const selectedCategories = formData.getAll('categories[]').map(id => parseInt(id));
-            
-            const recipeData = {
-                title: formData.get('title').trim(),
-                description: formData.get('description')?.trim() || null,
-                instructions: formData.get('instructions').trim(),
-                prep_time: formData.get('prep_time') ? parseInt(formData.get('prep_time')) : null,
-                cook_time: formData.get('cook_time') ? parseInt(formData.get('cook_time')) : null,
-                servings: formData.get('servings') ? parseInt(formData.get('servings')) : null,
-                difficulty: formData.get('difficulty') || null,
-                image_url: formData.get('image_url')?.trim() || null,
-                ingredients,
-                categories: selectedCategories.length > 0 ? selectedCategories : null
-            };
-            
-            try {
-                const response = await recipes.create(recipeData);
-                showSuccess('Recipe created successfully!');
-                setTimeout(() => {
-                    window.location.href = `/recipes/detail.html?id=${response.recipe.recipe_id}`;
-                }, 1500);
-            } catch (error) {
-                showError(errorDiv, error.message || 'Failed to create recipe');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Create Recipe';
-            }
-        });
-        
-        loadCategories();
+
+        try {
+          const response = await recipes.create(recipeData);
+          showSuccess("Recipe created successfully!");
+          setTimeout(() => {
+            window.location.href = `/recipes/detail.html?id=${response.recipe.recipe_id}`;
+          }, 1500);
+        } catch (error) {
+          showError(errorDiv, error.message || "Failed to create recipe");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create Recipe";
+        }
+      });
+
+      loadCategories();
     </script>
-</body>
+  </body>
 </html>

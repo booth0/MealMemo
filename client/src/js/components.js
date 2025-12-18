@@ -1,12 +1,12 @@
 // /src/js/components.js
 // Component loader for header and footer
 
-import { isAuthenticated, getUser, logout } from './auth.js';
+import { isAuthenticated, getUser, logout } from "./auth.js";
 
 // ========== Load Header ==========
 
 export function loadHeader() {
-  const headerElement = document.getElementById('header');
+  const headerElement = document.getElementById("header");
   if (!headerElement) return;
 
   const user = getUser();
@@ -25,25 +25,37 @@ export function loadHeader() {
             <li><a href="/">Home</a></li>
             <li><a href="/featured/index.html">Featured Recipes</a></li>
             
-            ${isAuth ? `
+            ${
+              isAuth
+                ? `
               <li><a href="/recipes/index.html">My Recipes</a></li>
               
-              ${user && (user.role === 'contributor' || user.role === 'admin') ? `
+              ${
+                user && (user.role === "contributor" || user.role === "admin")
+                  ? `
                 <li><a href="/contributor/index.html">Review Submissions</a></li>
-              ` : ''}
+              `
+                  : ""
+              }
               
-              ${user && user.role === 'admin' ? `
+              ${
+                user && user.role === "admin"
+                  ? `
                 <li><a href="/admin/index.html">Admin</a></li>
-              ` : ''}
+              `
+                  : ""
+              }
               
               <li class="user-menu">
-                <span class="user-greeting">Hello, ${user?.firstName || 'User'}!</span>
+                <span class="user-greeting">Hello, ${user?.firstName || "User"}!</span>
                 <button id="logout-btn" class="btn-link">Logout</button>
               </li>
-            ` : `
+            `
+                : `
               <li><a href="/login/index.html">Login</a></li>
               <li><a href="/register/index.html" class="btn btn-primary">Sign Up</a></li>
-            `}
+            `
+            }
           </ul>
         </div>
       </nav>
@@ -54,10 +66,10 @@ export function loadHeader() {
 
   // Add logout event listener
   if (isAuth) {
-    const logoutBtn = document.getElementById('logout-btn');
+    const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to logout?')) {
+      logoutBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to logout?")) {
           logout();
         }
       });
@@ -68,7 +80,7 @@ export function loadHeader() {
 // ========== Load Footer ==========
 
 export function loadFooter() {
-  const footerElement = document.getElementById('footer');
+  const footerElement = document.getElementById("footer");
   if (!footerElement) return;
 
   const isAuth = isAuthenticated();
@@ -93,12 +105,16 @@ export function loadFooter() {
         <div class="footer-section">
           <h4>Account</h4>
           <ul>
-            ${isAuth ? `
+            ${
+              isAuth
+                ? `
               <li><a href="/recipes/index.html">My Recipes</a></li>
-            ` : `
+            `
+                : `
               <li><a href="/login/index.html">Login</a></li>
               <li><a href="/register/index.html">Sign Up</a></li>
-            `}
+            `
+            }
           </ul>
         </div>
         

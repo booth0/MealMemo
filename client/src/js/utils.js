@@ -4,7 +4,7 @@
 // ========== UI Helpers ==========
 
 export function showLoading(element) {
-  if (typeof element === 'string') {
+  if (typeof element === "string") {
     element = document.querySelector(element);
   }
   if (element) {
@@ -13,7 +13,7 @@ export function showLoading(element) {
 }
 
 export function showError(element, message) {
-  if (typeof element === 'string') {
+  if (typeof element === "string") {
     element = document.querySelector(element);
   }
   if (element) {
@@ -22,14 +22,14 @@ export function showError(element, message) {
 }
 
 export function showSuccess(message) {
-  const toast = document.createElement('div');
-  toast.className = 'toast toast-success';
+  const toast = document.createElement("div");
+  toast.className = "toast toast-success";
   toast.textContent = message;
   document.body.appendChild(toast);
-  
-  setTimeout(() => toast.classList.add('show'), 100);
+
+  setTimeout(() => toast.classList.add("show"), 100);
   setTimeout(() => {
-    toast.classList.remove('show');
+    toast.classList.remove("show");
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
@@ -38,15 +38,15 @@ export function showSuccess(message) {
 
 export function formatDate(dateString) {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
 export function formatTime(minutes) {
-  if (!minutes) return 'N/A';
+  if (!minutes) return "N/A";
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -63,13 +63,13 @@ export function getQueryParam(param) {
 // ========== String Helpers ==========
 
 export function truncate(text, length = 100) {
-  if (!text) return '';
+  if (!text) return "";
   if (text.length <= length) return text;
-  return text.substring(0, length) + '...';
+  return text.substring(0, length) + "...";
 }
 
 export function sanitizeHTML(str) {
-  const temp = document.createElement('div');
+  const temp = document.createElement("div");
   temp.textContent = str;
   return temp.innerHTML;
 }
